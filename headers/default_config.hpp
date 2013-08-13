@@ -18,7 +18,6 @@
 
 namespace cfg
 {
-
 	struct config_t
 	{
 		int _level;
@@ -44,8 +43,8 @@ namespace cfg
 	public:
 		config_t get_config();
 
-		default_config(){}
-		virtual ~default_config(){}
+				default_config () {};
+		virtual ~default_config() {};
 	};
 }	// namespace cfg
 

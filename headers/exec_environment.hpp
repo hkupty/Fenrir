@@ -36,8 +36,8 @@ namespace exec
 		di_container<session_ms::session_manager, session_ms::API> _smanagerdi;
 
 	public:
-		exec_environment() {}
-		virtual ~exec_environment() {}
+				exec_environment () {};
+		virtual ~exec_environment() {};
 		void start();
 	};
 }

@@ -33,8 +33,8 @@ public:
 	lua_State* get_state();
 	bool run_file_multret(const char*);
 
-	lua_container();
-	virtual ~lua_container(){}
+			lua_container ();
+	virtual ~lua_container() {};
 };
 
 
