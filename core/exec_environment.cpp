@@ -60,7 +60,9 @@ void exec::exec_environment::start()
 	for (auto session_it = cfg._underlying.begin(); session_it != cfg._underlying.end(); session_it++)
 	{
 		std::cout << _log::_inf << k_env << "------------------------------------------"<< std::endl;			
-		std::cout << _log::_inf << k_env << session_it->_name << ", " << session_it->_type << std::endl;			
+		std::cout << _log::_inf << k_env << session_it->_name << ", " << session_it->_type << std::endl;	
+		sessions::session* _s = _sessiondi.create_t(session_it->_type);
+		smanager->register_session(_s);
 		for (auto buffer_it = session_it->_underlying.begin(); buffer_it != session_it->_underlying.end(); buffer_it++ )
 		{
 			std::cout << _log::_inf << k_env << buffer_it->_name << ", " << buffer_it->_type << std::endl;			

@@ -6,28 +6,28 @@ global_cfg =
 	session_1	= 
 	{
 		_name 			= "Player1",
-		_type 			= "TCP_Session",
+		_type 			= "tcp_session",
 		group			= "brokers",
 		buffer_1		=
 		{
-			_name			= "_btc",
-			_type 			= "async_linked_list",
+			_name			= "bf1",
+			_type 			= "async_linked_list_buffer",
 		},
 		buffer_2		=
 		{
-			_name 			= "_aco",
-			_type 			= "async_fixed",
+			_name 			= "bf2",
+			_type 			= "async_fixed_buffer",
 			max_size		= "2048",
 		}
 	},
 	session_2	=
 	{
 		_name			= "System1",
-		_type			= "UDP_Session",
+		_type			= "tcp_session",
 		group			= "systems",
 		buffer_1		=
 		{
-			_name 			= "_btc",
+			_name 			= "bf1",
 			_type 			= "sync_linked_list",
 		}
 	}
