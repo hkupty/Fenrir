@@ -25,7 +25,7 @@ class basic_session_manager : public session_ms::session_manager
 
 	virtual void deregister_session(sessions::session* _session) override
 	{
-		this->sessions_.push_back(_session);
+		this->sessions_.remove(_session);
 	}
 
 	virtual void register_rule_manager(rules::rule_manager* _rmanager) override

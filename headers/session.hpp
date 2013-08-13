@@ -26,8 +26,8 @@ namespace sessions
 		short			session_mbuffer_qtd;
 
 	public:
-		session();
-		virtual ~session() = 0;
+				session () {};
+		virtual ~session() {};
 
 		virtual void register_mbuffer(buffers::message_buffer*) = 0;
 		virtual void deregister_mbuffer(buffers::message_buffer*) = 0;
