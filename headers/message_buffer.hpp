@@ -20,8 +20,8 @@ namespace buffers
 	{
 		
 	public:
-		message_buffer();
-		virtual ~message_buffer() = 0;
+				message_buffer () {};
+		virtual ~message_buffer() {};
 
 		virtual void push_message(message::msg*) = 0;
 	};
@@ -41,6 +41,9 @@ namespace buffers
 
 		virtual void register_callback(process_message) = 0;
 		virtual void asyc_process() = 0;
+		
+				 async_message_buffer () {};
+		virtual ~async_message_buffer () {} ;
 	};
 }
 #endif /* MESSAGE_BUFFER_HPP_ */
