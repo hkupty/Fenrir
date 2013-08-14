@@ -7,6 +7,7 @@
 
 
  #include "../headers/session.hpp"
+ #include "../headers/external.hpp"
 
  #include <boost/container/list.hpp>
 
@@ -39,5 +40,5 @@
  	delete ref;
  }
 
- sessions::API api_table = {create_tcp, destroy_tcp};
+ external::API<sessions::session> api_table = {create_tcp, destroy_tcp};
 

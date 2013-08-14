@@ -5,15 +5,23 @@
  *      Author: Henry J Kupty
  */
 
-#include "../headers/rule_manager.hpp"
+ #include "../headers/rule_manager.hpp"
+ #include "../headers/external.hpp"
 
 class default_rulemgr : public rules::rule_manager
 {
 
-const char* name() override
-{
-	return "Default";
-}
+	void configure(boost::unordered_map<std::string, std::string> kv_) override
+	{
+		rules::rule_manager::configure(kv_);
+	}
+
+
+
+	const char* name() override
+	{
+		return (std::string("Default with protocol ") + this->_protocol).c_str();
+	}
 
 };
 
@@ -28,4 +36,4 @@ void destroy_default(rules::rule_manager* r)
 	delete r;
 }
 
-rules::API api_table = {create_default, destroy_default};
+external::API<rules::rule_manager> api_table = {create_default, destroy_default};

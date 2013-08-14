@@ -12,7 +12,7 @@ CP=cp *.lua
 STATIC= lua_container.cpp default_config.cpp di_container.cpp exec_environment.cpp run.cpp
 STATIC_FOLDER=core
 
-SHARED=default_rulemgr dynamic_rulemgr basic_session_manager tcp_session
+SHARED=default_rulemgr dynamic_rulemgr basic_session_manager tcp_session async_linked_list_buffer
 SHARED_FOLDER=external
 
 BUILD=build

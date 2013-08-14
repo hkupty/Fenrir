@@ -3,6 +3,7 @@ global_cfg =
 	_name 		= "Fenrir",
 	_type 		= "basic_session_manager",
 	rule_alg	= "default_rulemgr",
+	protocol	= "FIX",
 	session_1	= 
 	{
 		_name 			= "Player1",
@@ -16,7 +17,7 @@ global_cfg =
 		buffer_2		=
 		{
 			_name 			= "bf2",
-			_type 			= "async_fixed_buffer",
+			_type 			= "async_linked_list_buffer",
 			max_size		= "2048",
 		}
 	},
@@ -28,7 +29,7 @@ global_cfg =
 		buffer_1		=
 		{
 			_name 			= "bf1",
-			_type 			= "sync_linked_list",
+			_type 			= "async_linked_list_buffer",
 		}
 	}
 }

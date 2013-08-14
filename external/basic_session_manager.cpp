@@ -6,6 +6,7 @@
  */
 
  #include "../headers/session_manager.hpp"
+ #include "../headers/external.hpp"
  #include <boost/container/list.hpp>
 
 
@@ -45,4 +46,4 @@ void destroy_basic(session_ms::session_manager* ref)
 	delete ref;
 }
 
-session_ms::API api_table = {create_basic, destroy_basic};
+external::API<session_ms::session_manager> api_table = {create_basic, destroy_basic};

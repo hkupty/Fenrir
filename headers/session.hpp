@@ -9,23 +9,33 @@
 #define SESSION_HPP_
 
 #include "message_buffer.hpp"
+#include "external.hpp"
 #include <string>
 
 namespace sessions
 {
 
-	const short READ_ACCESS 	= 0x01 << 0;
-	const short WRITE_ACCESS 	= 0x01 << 1;
+	// const short READ_ACCESS 	= 0x01 << 0;
+	// const short WRITE_ACCESS 	= 0x01 << 1;
 
-	class session
+	class session : public external::external
 	{
 	protected:
-		std::string		session_name;
-		int				session_id;
-		short			session_accesslevel;
-		short			session_mbuffer_qtd;
+		std::string		_session_name;
+		std::string		_session_group;
+		
+		//short			_session_accesslevel;
+		short			_session_mbuffer_qtd;
 
 	public:
+
+		virtual void configure(boost::unordered_map<std::string,std::string> kv_) override
+		{
+			this->_session_group = kv_["group"];
+			// std::string acc = kv_["access"];
+			// this->_session_accesslevel = acc != "" ?: WRITE_ACCESS;
+		}
+
 				session () {};
 		virtual ~session() {};
 
@@ -34,10 +44,5 @@ namespace sessions
 
 	};
 
-	struct API
-		{
-			session* (*create)	(void);
-			void 	 (*destroy)	(session*);
-		};
 }
 #endif /* SESSION_HPP_ */

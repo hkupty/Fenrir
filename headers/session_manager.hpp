@@ -27,10 +27,5 @@ namespace session_ms
 
 };
 
-	struct API
-	{
-		session_manager* (*create)	(void);
-		void 	 		 (*destroy)	(session_manager*);
-	};
 }
 #endif /* SESSION_MANAGER_HPP_ */

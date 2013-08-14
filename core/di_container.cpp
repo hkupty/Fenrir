@@ -20,7 +20,7 @@ _T* di_container< _T,_api >::create_t(std::string impl)
 
 	if (!load)
 	{
-		std::cout << _log::_inf << k_dic <<  "LOADING NEW SHARED OBJECT" << std::endl;
+		std::cout << _log::_inf << k_dic <<  "LOADING NEW SHARED OBJECT FOR "  << impl << std::endl;
 
 		std::string filename =  "./" + impl + ".so";
 		const char* _impl = filename.c_str();

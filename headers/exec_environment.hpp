@@ -15,6 +15,7 @@
 #include "session.hpp"
 #include "session_manager.hpp"
 #include "default_config.hpp"
+#include "external.hpp"
 
 #include "../core/di_container.cpp"
 
@@ -30,10 +31,10 @@ namespace exec
 
 		std::string server_name;
 
-		di_container<rules::rule_manager, rules::API> _rulesdi;
-		di_container<sessions::session, sessions::API> _sessiondi;
-		di_container<buffers::message_buffer, buffers::API> _bufferdi;
-		di_container<session_ms::session_manager, session_ms::API> _smanagerdi;
+		di_container<rules::rule_manager, external::API<rules::rule_manager>> _rulesdi;
+		di_container<sessions::session, external::API<sessions::session>> _sessiondi;
+		di_container<buffers::message_buffer, external::API<buffers::message_buffer>> _bufferdi;
+		di_container<session_ms::session_manager, external::API<session_ms::session_manager>> _smanagerdi;
 
 	public:
 				exec_environment () {};
