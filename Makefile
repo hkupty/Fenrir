@@ -14,7 +14,7 @@ STATIC_FOLDER=core
 
 TEST=buffer_tester 
 
-BOOST_SAMPLE=boost_asio_sample
+BOOST_SAMPLE=boost_asio_sample mirror_boost_asio_sample
 
 SHARED=default_rulemgr dynamic_rulemgr basic_session_manager tcp_session async_linked_list_buffer
 SHARED_FOLDER=external

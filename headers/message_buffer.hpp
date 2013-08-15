@@ -13,10 +13,6 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <boost/bind.hpp>
-#include <boost/asio.hpp>
-
-using boost::asio::ip::tcp;
 
 namespace buffers
 {
@@ -25,7 +21,6 @@ namespace buffers
 	class message_buffer : public external::external
 	{
 	protected:
-		tcp::socket* socket_;
 		int max_length_;
 		
 	public:
@@ -37,8 +32,7 @@ namespace buffers
 				message_buffer () {};
 		virtual ~message_buffer() {};
 
-		virtual void push_message(message::msg*) = 0;
-		virtual void start(boost::asio::io_service&) = 0;
+		virtual bool push_message(message::msg*) = 0;
 	};
 }
 #endif /* MESSAGE_BUFFER_HPP_ */
