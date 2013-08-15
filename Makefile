@@ -12,7 +12,9 @@ CP=cp *.lua
 STATIC= lua_container.cpp default_config.cpp di_container.cpp exec_environment.cpp run.cpp
 STATIC_FOLDER=core
 
-TEST=buffer_tester
+TEST=buffer_tester 
+
+BOOST_SAMPLE=boost_asio_sample
 
 SHARED=default_rulemgr dynamic_rulemgr basic_session_manager tcp_session async_linked_list_buffer
 SHARED_FOLDER=external
@@ -43,5 +45,12 @@ shared: $(SHARED)
 $(SHARED): 
 	$(CC) $(CFLAGS) -shared -fPIC $(SHARED_FOLDER)/$@.cpp -o $(BUILD)/$@.so
 
-test:
-	$(CC) $(CFLAGS) -ldl -O3 $(TEST).cpp -o $(BUILD)/$(TEST)
+test: $(TEST)
+
+$(TEST):
+	$(CC) $(CFLAGS) -ldl -O3 $@.cpp -o $(BUILD)/$@
+	
+boost: $(BOOST_SAMPLE)
+
+$(BOOST_SAMPLE):
+	$(CC) $(CFLAGS) -lboost_system -lboost_thread -O3 $@.cpp -o $(BUILD)/$@

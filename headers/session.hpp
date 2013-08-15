@@ -11,6 +11,12 @@
 #include "message_buffer.hpp"
 #include "external.hpp"
 #include <string>
+#include <cstdlib>
+#include <iostream>
+#include <boost/bind.hpp>
+#include <boost/asio.hpp>
+
+using boost::asio::ip::tcp;
 
 namespace sessions
 {
@@ -23,8 +29,6 @@ namespace sessions
 	protected:
 		std::string		_session_name;
 		std::string		_session_group;
-		
-		//short			_session_accesslevel;
 		short			_session_mbuffer_qtd;
 
 	public:
@@ -32,9 +36,10 @@ namespace sessions
 		virtual void configure(boost::unordered_map<std::string,std::string> kv_) override
 		{
 			this->_session_group = kv_["group"];
-			// std::string acc = kv_["access"];
-			// this->_session_accesslevel = acc != "" ?: WRITE_ACCESS;
 		}
+
+		virtual void start_session(boost::asio::io_service& io, int port) = 0;
+		
 
 				session () {};
 		virtual ~session() {};

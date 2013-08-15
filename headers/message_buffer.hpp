@@ -11,39 +11,34 @@
 #include "message.hpp"
 #include "external.hpp"
 
+#include <cstdlib>
+#include <iostream>
+#include <boost/bind.hpp>
+#include <boost/asio.hpp>
+
+using boost::asio::ip::tcp;
+
 namespace buffers
 {
-
 	typedef void (*process_message)(message::msg*);
 
 	class message_buffer : public external::external
 	{
+	protected:
+		tcp::socket* socket_;
+		int max_length_;
 		
 	public:
+
+		virtual void configure(boost::unordered_map<std::string,std::string> kv_) override
+		{
+			this->max_length_ = atoi(kv_["max_length"].c_str()) ?: 1024;
+		}
 				message_buffer () {};
 		virtual ~message_buffer() {};
 
 		virtual void push_message(message::msg*) = 0;
-	};
-
-	class async_message_buffer : public message_buffer
-	{
-
-	protected:
-		process_message _callback;
-		int				_tqtd;
-
-	public:
-		virtual void configure(boost::unordered_map<std::string,std::string> kv_) override
-		{
-			this->_tqtd = atoi(kv_["thread_qtd"].c_str());
-		}
-
-		virtual void register_callback(process_message) = 0;
-		virtual void asyc_process() = 0;
-		
-				 async_message_buffer () {};
-		virtual ~async_message_buffer () {} ;
+		virtual void start(boost::asio::io_service&) = 0;
 	};
 }
 #endif /* MESSAGE_BUFFER_HPP_ */
