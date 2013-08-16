@@ -8,11 +8,22 @@
 
  #include "../headers/session.hpp"
  #include "../headers/external.hpp"
+ #include "../headers/network/server.hpp"
 
  #include <boost/container/list.hpp>
 
  class tcp_session : public sessions::session
  {
+ 	network::tcp_server* t_serv;
+ 	int curr_buffer;
+
+ 	void register_buffer (std::shared_ptr<network::tcp_connection> conn)
+ 	{
+
+ 		auto it = buffers.begin();
+ 		auto nx = std::next(it, curr_buffer);
+ 		conn->register_callback(nx.push_message);
+ 	}
 
  protected:
  	boost::container::list<buffers::message_buffer*> buffers;
@@ -28,8 +39,12 @@
 		this->buffers.remove(buffer);
  	}
 
+ 	virtual void start_session(boost::asio::io_service& io, int port)
+ 	{
+ 		t_serv = new network::tcp_server(io, port, this->register_mbuffer);
+ 	}
 
- 	tcp_session() : curr_buffer(0) {};
+ 	tcp_session() : curr_buffer(0) { };
 
  };
 

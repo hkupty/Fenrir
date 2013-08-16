@@ -60,10 +60,10 @@ namespace network
 			    });
 		}
 
-		void do_write(std::size_t length)
+		void do_write()
 		{
 			auto self(shared_from_this());
-			boost::asio::async_write(socket_, boost::asio::buffer(data_, length),
+			boost::asio::async_write(socket_, boost::asio::buffer(data_, sizeof(data_)),
 			    [this, self](boost::system::error_code ec, std::size_t /*length*/)
 			    {
 			      if (!ec)
@@ -81,6 +81,14 @@ namespace network
 		{
 			do_read();
 		}
+
+		
+		void post_message(char* _msg)
+		{
+			data_ = _msg;
+			do_write();
+		}
+
 	 	virtual ~tcp_connection() {};
 	 };
 }
