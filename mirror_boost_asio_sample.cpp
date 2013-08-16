@@ -15,7 +15,7 @@ bool print_msg(const char* msg)
 	return true;
 }
 
-void manipulate(network::connection* _conn)
+void manipulate(std::shared_ptr<network::tcp_connection> _conn)
 {
 	_conn->register_callback(print_msg);
 }

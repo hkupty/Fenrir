@@ -8,18 +8,26 @@
  #ifndef NETWORK_CONNECTION_
  #define NETWORK_CONNECTION_
 
+#include <cstdlib>
+#include <iostream>
+#include <memory>
+#include <utility>
+#include <boost/asio.hpp>
+
 using boost::asio::ip::tcp;
 
 namespace network
 {
 	typedef bool (*put_message) (const char*);
 	 
-	 class connection
+	 class connection : public std::enable_shared_from_this<connection>
 	 {
+
 	 protected:
 	 	put_message callback_;
 	 	enum { max_length = 1024 };
-	    char data_[max_length];
+	    char* data_ = new char[max_length];
+
 	 public:
 	 	connection() {};
 	 	virtual ~connection() {};
@@ -31,53 +39,49 @@ namespace network
 
 	 };
 
-	 class tcp_connection : public connection
-	 {
-
+	class tcp_connection : public connection
+	{
+	
 	private:
 		tcp::socket socket_;
 
-		void handle_read(const boost::system::error_code& error,
-	      size_t bytes_transferred)
+		void do_read()
 		{
-			if (!error)
-			{
-			  this->callback_(data_);
-			  clear(data_);
-			  start();
-			}
-			else
-			{
-			  delete this;
-			}
-		}
-		void clear(char* arr)
-		{
-			for (int i = 0; i < max_length; i++)
-				arr[i] = '\0';
+			auto self(shared_from_this());
+			socket_.async_read_some(boost::asio::buffer(data_, max_length),
+			    [this, self](boost::system::error_code ec, std::size_t length)
+			    {
+			      if (!ec)
+			      {
+			        callback_(data_);
+			        data_ = new char[max_length];
+			      }
+			      do_read();
+			    });
 		}
 
-	 public:
-	 	tcp_connection(boost::asio::io_service& io_service)
-	    : socket_(io_service) {}
-
-	    tcp::socket& socket()
+		void do_write(std::size_t length)
 		{
-			return socket_;
+			auto self(shared_from_this());
+			boost::asio::async_write(socket_, boost::asio::buffer(data_, length),
+			    [this, self](boost::system::error_code ec, std::size_t /*length*/)
+			    {
+			      if (!ec)
+			      {
+			      	do_read();
+			      }
+
+			    });
 		}
+
+	public:
+	 	tcp_connection(tcp::socket socket) : socket_(std::move(socket)) {}
 
 		void start()
 		{
-			socket_.async_read_some
-			(boost::asio::buffer(data_, max_length),
-		    	boost::bind(&tcp_connection::handle_read, this,
-		    		boost::asio::placeholders::error,
-		    		boost::asio::placeholders::bytes_transferred));
+			do_read();
 		}
-
 	 	virtual ~tcp_connection() {};
-	 
-	 	/* data */
 	 };
 }
 

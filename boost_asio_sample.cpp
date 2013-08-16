@@ -1,8 +1,8 @@
 //
-// boost_asio_sample.cpp
+// async_tcp_echo_server.cpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2013 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -10,62 +10,51 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <boost/bind.hpp>
+#include <memory>
+#include <utility>
 #include <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
 
 class session
+  : public std::enable_shared_from_this<session>
 {
 public:
-  session(boost::asio::io_service& io_service)
-    : socket_(io_service)
+  session(tcp::socket socket)
+    : socket_(std::move(socket))
   {
-  }
-
-  tcp::socket& socket()
-  {
-    return socket_;
   }
 
   void start()
   {
-    socket_.async_read_some(boost::asio::buffer(data_, max_length),
-        boost::bind(&session::handle_read, this,
-          boost::asio::placeholders::error,
-          boost::asio::placeholders::bytes_transferred));
+    do_read();
   }
 
 private:
-  void handle_read(const boost::system::error_code& error,
-      size_t bytes_transferred)
+  void do_read()
   {
-    if (!error)
-    {
-      boost::asio::async_write(socket_,
-          boost::asio::buffer(data_, bytes_transferred),
-          boost::bind(&session::handle_write, this,
-            boost::asio::placeholders::error));
-    }
-    else
-    {
-      delete this;
-    }
+    auto self(shared_from_this());
+    socket_.async_read_some(boost::asio::buffer(data_, max_length),
+        [this, self](boost::system::error_code ec, std::size_t length)
+        {
+          if (!ec)
+          {
+            do_write(length);
+          }
+        });
   }
 
-  void handle_write(const boost::system::error_code& error)
+  void do_write(std::size_t length)
   {
-    if (!error)
-    {
-      socket_.async_read_some(boost::asio::buffer(data_, max_length),
-          boost::bind(&session::handle_read, this,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
-    }
-    else
-    {
-      delete this;
-    }
+    auto self(shared_from_this());
+    boost::asio::async_write(socket_, boost::asio::buffer(data_, length),
+        [this, self](boost::system::error_code ec, std::size_t /*length*/)
+        {
+          if (!ec)
+          {
+            do_read();
+          }
+        });
   }
 
   tcp::socket socket_;
@@ -77,38 +66,29 @@ class server
 {
 public:
   server(boost::asio::io_service& io_service, short port)
-    : io_service_(io_service),
-      acceptor_(io_service, tcp::endpoint(tcp::v4(), port))
+    : acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
+      socket_(io_service)
   {
-    start_accept();
+    do_accept();
   }
 
 private:
-  void start_accept()
+  void do_accept()
   {
-    session* new_session = new session(io_service_);
-    acceptor_.async_accept(new_session->socket(),
-        boost::bind(&server::handle_accept, this, new_session,
-          boost::asio::placeholders::error));
+    acceptor_.async_accept(socket_,
+        [this](boost::system::error_code ec)
+        {
+          if (!ec)
+          {
+            std::make_shared<session>(std::move(socket_))->start();
+          }
+
+          do_accept();
+        });
   }
 
-  void handle_accept(session* new_session,
-      const boost::system::error_code& error)
-  {
-    if (!error)
-    {
-      new_session->start();
-    }
-    else
-    {
-      delete new_session;
-    }
-
-    start_accept();
-  }
-
-  boost::asio::io_service& io_service_;
   tcp::acceptor acceptor_;
+  tcp::socket socket_;
 };
 
 int main(int argc, char* argv[])
@@ -123,8 +103,7 @@ int main(int argc, char* argv[])
 
     boost::asio::io_service io_service;
 
-    using namespace std; // For atoi.
-    server s(io_service, atoi(argv[1]));
+    server s(io_service, std::atoi(argv[1]));
 
     io_service.run();
   }
@@ -133,5 +112,5 @@ int main(int argc, char* argv[])
     std::cerr << "Exception: " << e.what() << "\n";
   }
 
-  return 0;
+return 0;
 }
