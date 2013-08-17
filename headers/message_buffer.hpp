@@ -32,7 +32,7 @@ namespace buffers
 				message_buffer () {};
 		virtual ~message_buffer() {};
 
-		virtual bool push_message(message::msg*) = 0;
+		virtual bool push_message(const char*) = 0;
 	};
 }
 #endif /* MESSAGE_BUFFER_HPP_ */

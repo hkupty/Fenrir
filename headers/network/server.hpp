@@ -56,13 +56,19 @@ using boost::asio::ip::tcp;
     }
 
  	public:
- 		tcp_server(boost::asio::io_service& io_service, short port,  conn_callback cnn_clbk)
+ 		tcp_server(boost::asio::io_service& io_service, short port)
     : acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
-      socket_(io_service),
-      conn_callback_(cnn_clbk)
-		{
-			do_accept();
-		}
+      socket_(io_service)	{}
+
+    void register_callback(conn_callback cnn_clbk)
+    {
+      this->conn_callback_ = cnn_clbk;
+    }
+
+    void start()
+    {
+      do_accept();
+    }
 
  		virtual ~tcp_server() {};
  	};
