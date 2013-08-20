@@ -2,7 +2,6 @@ Fenrir
 ======
 
 FIX Engine for Rapid Information Routing
-
 ======
 
 Fenrir is a Gateway for routing FIX messages, with configuration scripts written in LUA and core in C++.
