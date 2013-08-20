@@ -5,25 +5,33 @@
  *      Author: Henry J Kupty
  */
 
-
  #include "../headers/session.hpp"
  #include "../headers/external.hpp"
  #include "../headers/network/server.hpp"
  #include "../headers/network/connection.hpp"
+
  #include <boost/container/list.hpp>
+ #include <functional>
 
  class tcp_session : public sessions::session
  {
  	network::tcp_server* t_serv;
+
  	int curr_buffer;
 
- 	void register_conn_callback (std::shared_ptr<network::tcp_connection> conn)
+ 	void connection_callback (std::shared_ptr<network::tcp_connection> conn)
  	{
 
  		auto it = buffers.begin();
- 		buffers::message_buffer* nx = *( std::next(it, curr_buffer));
 
- 		conn->register_callback(nx->push_message);
+ 		//TODO: Implement intelligent logic for buffer selection
+ 		buffers::message_buffer* nx = *( std::next(it, curr_buffer) );
+
+ 		auto in_msg_callback = std::bind(&buffers::message_buffer::in_msg_push, nx, std::placeholders::_1);
+ 		auto out_msg_callback = std::bind(&buffers::message_buffer::out_msg_get, nx);
+
+ 		conn->in_msg_callback_rg(in_msg_callback);
+ 		conn->out_msg_callback_rg(out_msg_callback);
  	}
 
  protected:
@@ -44,7 +52,7 @@
  	{
  		this->t_serv = new network::tcp_server(io, port);
 
- 		this->t_serv->register_callback(this->register_conn_callback);
+ 		this->t_serv->connection_callback_rg(std::bind(&tcp_session::connection_callback, this, std::placeholders::_1));
 
  		this->t_serv->start();
  	}

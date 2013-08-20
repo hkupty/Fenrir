@@ -16,38 +16,97 @@
 	 {
 
 	 public:
-	 	T 				_current;
-	 	container<T>*	_next;
+	 	T 				current_;
+	 	container<T>*	next_;
 
-	 	container<T>(T curr_) : _current(curr_) {};
+	 	container<T>(T _curr) : current_(_curr) {};
 	 };
 
  protected:
- 	container<message::msg*>* _last = NULL;
- 	container<message::msg*>* _first = NULL;
- 	int qtd_ = 0;
+ 	container<const char*>* in_last_ = nullptr;
+ 	container<const char*>* in_first_ = nullptr;
+
+ 	container<const char*>* out_last_ = nullptr;
+ 	container<const char*>* out_first_ = nullptr;
+ 	
+ 	int in_qtd_ = 0;
+ 	int out_qtd_ = 0;
 
  public:
- 	virtual bool push_message(message::msg* msg_) override
- 	{
- 		container<message::msg*>* c = new container<message::msg*>(msg_);
 
- 		if ((this.qtd_ +1) > this.max_length_)
+ 	virtual bool in_msg_push(const char* msg_) override
+ 	{
+ 		container<const char*>* c = new container<const char*>(msg_);
+
+ 		if ((this.in_qtd_ + 1) > this.max_length_)
  			return false;
 
- 		if (this->_last == NULL)
+ 		if (this->in_last_ == nullptr)
  		{
- 			this->_last = c;
- 			this->_first = this->_last;
+ 			this->in_last_ = c;
+ 			this->in_first_ = this->in_last_;
  		}
  		else
  		{
- 			this->_last->_next = c;
- 			this->_last = c;
+ 			this->in_last_->next_ = c;
+ 			this->in_last_ = c;
  		}
- 		this->_last->_next = NULL;
+ 		this->in_last_->next_ = nullptr;
 
  		return true;
+ 	}
+
+ 	virtual bool out_msg_push(const char* _msg) override
+ 	{
+ 		container<const char*>* c = new container<const char*>(_msg);
+
+ 		if ((this.out_qtd_ + 1) > this.max_length_)
+ 			return false;
+
+ 		if (this->out_last_ == nullptr)
+ 		{
+ 			this->out_last_ = c;
+ 			this->out_first_ = this->out_last_;
+ 		}
+ 		else
+ 		{
+ 			this->out_last_->next_ = c;
+ 			this->out_last_ = c;
+ 		}
+
+ 		this->out_last_->next_ = nullptr;
+
+ 		return true;
+ 	}
+
+ 	virtual const char* in_msg_get()
+ 	{
+ 		if (this.in_qtd_ < 1)
+ 			return nullptr;
+
+ 		container<const char*> _msg_c = this->in_first_->current_;
+ 		const char* _msg = _msg_c->current_;
+
+ 		this->in_first_ = _msg_c->next_;
+
+ 		delete _msg_c;
+
+ 		return _msg;
+ 	}
+
+ 	virtual const char* out_msg_get()
+ 	{
+ 		if (this.out_qtd_ < 1)
+ 			return nullptr;
+
+ 		container<const char*> _msg_c = this->out_first_->current_;
+ 		const char* _msg = _msg_c->current_;
+
+ 		this->out_first_ = _msg_c->next_;
+
+ 		delete _msg_c;
+
+ 		return _msg;
  	}
 
  };

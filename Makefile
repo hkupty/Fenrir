@@ -1,6 +1,6 @@
 CC=clang++
 CC_VER=3.3
-_FLAGS=-std=c++11
+_FLAGS=-std=c++11 -pipe
 CFLAGS= $(_FLAGS) -O3 -Wall -fslp-vectorize -march=native -mtune=native
 INCLUDE=-I/usr/include 
 LFLAGS= $(_FLAGS) -L/usr/libs -ldl -lboost_system -lboost_thread -llua -pthread

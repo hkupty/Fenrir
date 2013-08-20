@@ -18,23 +18,28 @@ using boost::asio::ip::tcp;
 
 namespace network
 {
-	typedef bool (*put_message) (const char*);
-	 
 	 class connection : public std::enable_shared_from_this<connection>
 	 {
 
 	 protected:
-	 	put_message callback_;
+	 	std::function<bool(const char*)> in_msg_callback_;
+	 	std::function<const char*()> out_msg_callback_;
 	 	enum { max_length = 1024 };
-	    char* data_ = new char[max_length];
+	    char* in_data_ = new char[max_length];
+	    const char* out_data_ = new char[max_length];
 
 	 public:
 	 	connection() {};
 	 	virtual ~connection() {};
 
-	 	void register_callback(put_message _callback)
+	 	void in_msg_callback_rg(std::function<bool(const char*)> _callback)
 	    {
-	    	this->callback_ = _callback;
+	    	this->in_msg_callback_ = _callback;
+	    }
+
+	    void out_msg_callback_rg(std::function<const char*()> _callback)
+	    {
+	    	this->out_msg_callback_ = _callback;
 	    }
 
 	 };
@@ -48,29 +53,31 @@ namespace network
 		void do_read()
 		{
 			auto self(shared_from_this());
-			socket_.async_read_some(boost::asio::buffer(data_, max_length),
+			socket_.async_read_some(boost::asio::buffer(in_data_, max_length),
 			    [this, self](boost::system::error_code ec, std::size_t length)
 			    {
 			      if (!ec)
 			      {
-			        callback_(data_);
-			        data_ = new char[max_length];
+			        in_msg_callback_(in_data_);
+			        in_data_ = new char[max_length];
 			      }
-			      do_read();
+
+			      out_data_ = out_msg_callback_();
+			      do_write();
+			      
 			    });
 		}
 
 		void do_write()
 		{
 			auto self(shared_from_this());
-			boost::asio::async_write(socket_, boost::asio::buffer(data_, sizeof(data_)),
+			boost::asio::async_write(socket_, boost::asio::buffer(out_data_, sizeof(out_data_)),
 			    [this, self](boost::system::error_code ec, std::size_t /*length*/)
 			    {
 			      if (!ec)
 			      {
-			      	do_read();
+			      	do_read();	
 			      }
-
 			    });
 		}
 
@@ -80,13 +87,6 @@ namespace network
 		void start()
 		{
 			do_read();
-		}
-
-		
-		void post_message(char* _msg)
-		{
-			data_ = _msg;
-			do_write();
 		}
 
 	 	virtual ~tcp_connection() {};

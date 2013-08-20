@@ -16,10 +16,9 @@
 
 namespace buffers
 {
-	typedef void (*process_message)(message::msg*);
-
 	class message_buffer : public external::external
 	{
+
 	protected:
 		int max_length_;
 		
@@ -32,7 +31,12 @@ namespace buffers
 				message_buffer () {};
 		virtual ~message_buffer() {};
 
-		virtual bool push_message(const char*) = 0;
+		virtual bool in_msg_push(const char*) = 0;
+		virtual bool out_msg_push(const char*) = 0;
+
+		virtual const char* in_msg_get() = 0;
+		virtual const char* out_msg_get() = 0;
+
 	};
 }
 #endif /* MESSAGE_BUFFER_HPP_ */

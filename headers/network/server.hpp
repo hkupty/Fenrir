@@ -15,14 +15,12 @@
 #include <boost/asio.hpp>
 
 #include "connection.hpp"
+#include "../session.hpp"
 
 using boost::asio::ip::tcp;
 
  namespace network
  {
-
-  typedef void (*conn_callback) (std::shared_ptr<tcp_connection>);
-
 	class server
 	{
 	public:
@@ -35,7 +33,7 @@ using boost::asio::ip::tcp;
  	{
     tcp::acceptor acceptor_;
     tcp::socket socket_; 
-    conn_callback conn_callback_;
+    std::function<void(std::shared_ptr<tcp_connection>)> conn_callback;
 
     
     void do_accept()
@@ -45,9 +43,9 @@ using boost::asio::ip::tcp;
           {
             if (!ec)
             {
-              auto new_conn = std::make_shared<tcp_connection>(std::move(socket_));
+              auto new_conn = std::make_shared<tcp_connection>( std::move(socket_) );
 
-              conn_callback_(new_conn);
+              conn_callback(new_conn);
 
               new_conn->start();
             }
@@ -60,9 +58,9 @@ using boost::asio::ip::tcp;
     : acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
       socket_(io_service)	{}
 
-    void register_callback(conn_callback cnn_clbk)
+    void connection_callback_rg(std::function<void(std::shared_ptr<tcp_connection>)> cnn_clbk)
     {
-      this->conn_callback_ = cnn_clbk;
+      this->conn_callback = cnn_clbk;
     }
 
     void start()
