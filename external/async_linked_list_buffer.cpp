@@ -38,7 +38,7 @@
  	{
  		container<const char*>* c = new container<const char*>(msg_);
 
- 		if ((this.in_qtd_ + 1) > this.max_length_)
+ 		if ((this->in_qtd_ + 1) > this->max_length_)
  			return false;
 
  		if (this->in_last_ == nullptr)
@@ -60,7 +60,7 @@
  	{
  		container<const char*>* c = new container<const char*>(_msg);
 
- 		if ((this.out_qtd_ + 1) > this.max_length_)
+ 		if ((this->out_qtd_ + 1) > this->max_length_)
  			return false;
 
  		if (this->out_last_ == nullptr)
@@ -81,10 +81,11 @@
 
  	virtual const char* in_msg_get()
  	{
- 		if (this.in_qtd_ < 1)
+ 		if (this->in_qtd_ < 1)
  			return nullptr;
 
- 		container<const char*> _msg_c = this->in_first_->current_;
+ 		container<const char*>* _msg_c = this->in_first_;
+
  		const char* _msg = _msg_c->current_;
 
  		this->in_first_ = _msg_c->next_;
@@ -96,10 +97,11 @@
 
  	virtual const char* out_msg_get()
  	{
- 		if (this.out_qtd_ < 1)
+ 		if (this->out_qtd_ < 1)
  			return nullptr;
 
- 		container<const char*> _msg_c = this->out_first_->current_;
+ 		container<const char*>* _msg_c = this->out_first_;
+
  		const char* _msg = _msg_c->current_;
 
  		this->out_first_ = _msg_c->next_;
