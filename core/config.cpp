@@ -1,5 +1,5 @@
 /*
- * default_config.cpp
+ * config.cpp
  *
  *  Created on: 10 Jun 2013
  *      Author: Henry J Kupty
@@ -8,7 +8,7 @@
 #include <sstream>
 #include <stdio.h>
 
-#include "../headers/default_config.hpp"
+#include "../headers/config.hpp"
 #include "../headers/log.hpp"
 
 const std::string k_cfg = std::string(_log::_bold + "[CONFIG    ]" + _log::_clr);
@@ -19,7 +19,7 @@ namespace cfg
 	std::string _NAME = "_name";
 	std::string _TYPE = "_type";
 
-	config_t default_config::get_config_cfg(int _lvl, lua_State* L)
+	config_t config::get_config_cfg(int _lvl, lua_State* L)
 	{
 		config_t config_node(_lvl);
 
@@ -51,7 +51,7 @@ namespace cfg
 
 
 	//Exec Environment --> config_file.lua
-	config_t default_config::get_config()
+	config_t config::get_config()
 	{
 		lua_State* L = this->container.get_state();
 

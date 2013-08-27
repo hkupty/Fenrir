@@ -9,12 +9,10 @@ LFLAGS= $(_FLAGS) -L/usr/libs -ldl -lboost_system -lboost_thread -llua -pthread
 MKDIR=mkdir -p
 CP=cp *.lua 
 
-STATIC= lua_container.cpp default_config.cpp di_container.cpp exec_environment.cpp run.cpp
+STATIC= runtime_container.cpp lua_container.cpp config.cpp di_container.cpp network_container.cpp exec_environment.cpp run.cpp
 STATIC_FOLDER=core
 
-TEST=buffer_tester 
-
-BOOST_SAMPLE=mirror_boost_asio_sample
+TEST=buffer_tester infra_tester
 
 SHARED=default_rulemgr dynamic_rulemgr basic_session_manager tcp_session async_linked_list_buffer
 SHARED_FOLDER=external
@@ -48,9 +46,4 @@ $(SHARED):
 test: $(TEST)
 
 $(TEST):
-	$(CC) $(CFLAGS) -ldl -O3 $@.cpp -o $(BUILD)/$@
-	
-boost: $(BOOST_SAMPLE)
-
-$(BOOST_SAMPLE):
-	$(CC) $(CFLAGS) -lboost_system -lboost_thread $@.cpp -o $(BUILD)/$@
+	$(CC) $(CFLAGS) -lboost_system -lboost_thread -ldl $@.cpp -o $(BUILD)/$@

@@ -5,7 +5,6 @@
  *      Author: Henry J Kupty
  */
 
-#include "../headers/default_config.hpp"
 #include "../headers/exec_environment.hpp"
 #include "../headers/log.hpp" 
 
@@ -57,13 +56,14 @@ int main(){
     std::ofstream out(output);
 
     std::cout.rdbuf(out.rdbuf());
+    std::cerr.rdbuf(out.rdbuf());
 
     std::cout << _log::_scc <<  k_daem << "START" << std::endl;
 
 	exec::exec_environment env;
 	env.start();
 
-	//while(1) { sleep(50); }
+	while(1) { sleep(50); }
 
 	std::cout << _log::_scc <<  k_daem << "STOP" << std::endl;
 
@@ -74,6 +74,9 @@ int main(){
 	std::cout.flush();
 
 	close(STDOUT_FILENO);
+
+
+
 
 	exit(EXIT_SUCCESS);
 }

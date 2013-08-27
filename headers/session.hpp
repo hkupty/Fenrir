@@ -13,10 +13,6 @@
 #include <string>
 #include <cstdlib>
 #include <iostream>
-#include <boost/bind.hpp>
-#include <boost/asio.hpp>
-
-using boost::asio::ip::tcp;
 
 namespace sessions
 {
@@ -27,19 +23,26 @@ namespace sessions
 	class session : public external::external
 	{
 	protected:
-		std::string		_session_name;
-		std::string		_session_group;
-		short			_session_mbuffer_qtd;
+		std::string		name_;
+		std::string		group_;
+		short			mbuffer_qtd_;
+		int				port_;
 
 	public:
 
 		virtual void configure(boost::unordered_map<std::string,std::string> kv_) override
 		{
-			this->_session_group = kv_["group"];
+			this->group_ = kv_["group"];
+			this->port_ = atoi(kv_["port"].c_str());
+
 		}
 
-		virtual void start_session(boost::asio::io_service& io, int port) = 0;
-		
+		virtual void set_name(std::string name)
+		{
+			this->name_ = name;
+		}
+
+		virtual void start_session() = 0;
 
 				session () {};
 		virtual ~session() {};

@@ -1,6 +1,6 @@
 
 /*
- * default_config.hpp
+ * config.hpp
  *
  *  Created on: 10 Jun 2013
  *      Author: Henry J Kupty
@@ -31,11 +31,11 @@ namespace cfg
 
 	};
 
-	class default_config
+	class config
 	{
 		lua_container container;
 
-		config_t config;
+		config_t cfg_node;
 
 	protected:
 		config_t get_config_cfg	(int, lua_State*);
@@ -43,8 +43,8 @@ namespace cfg
 	public:
 		config_t get_config();
 
-				default_config () {};
-		virtual ~default_config() {};
+				config () {};
+		virtual ~config() {};
 	};
 }	// namespace cfg
 

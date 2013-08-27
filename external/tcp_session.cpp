@@ -7,32 +7,29 @@
 
  #include "../headers/session.hpp"
  #include "../headers/external.hpp"
- #include "../headers/network/server.hpp"
- #include "../headers/network/connection.hpp"
 
  #include <boost/container/list.hpp>
  #include <functional>
 
- class tcp_session : public sessions::session
+namespace sessions
+{
+ class tcp_session : public session
  {
- 	network::tcp_server* t_serv;
+ 	int curr_buffer_;
 
- 	int curr_buffer;
-
+ 	/*
  	void connection_callback (std::shared_ptr<network::tcp_connection> conn)
  	{
-
  		auto it = buffers.begin();
 
  		//TODO: Implement intelligent logic for buffer selection
- 		buffers::message_buffer* nx = *( std::next(it, curr_buffer) );
+ 		buffers::message_buffer* nx = *( std::next(it, curr_buffer_) );
 
  		auto in_msg_callback = std::bind(&buffers::message_buffer::in_msg_push, nx, std::placeholders::_1);
- 		auto out_msg_callback = std::bind(&buffers::message_buffer::out_msg_get, nx);
 
  		conn->in_msg_callback_rg(in_msg_callback);
- 		conn->out_msg_callback_rg(out_msg_callback);
  	}
+ 	*/
 
  protected:
  	boost::container::list<buffers::message_buffer*> buffers;
@@ -41,34 +38,28 @@
  	virtual void register_mbuffer(buffers::message_buffer* buffer) override
  	{
  		this->buffers.push_back(buffer);
+ 		this->mbuffer_qtd_++;
  	}
 
  	virtual void deregister_mbuffer(buffers::message_buffer* buffer) override
  	{
 		this->buffers.remove(buffer);
+		this->mbuffer_qtd_--;
  	}
 
- 	virtual void start_session(boost::asio::io_service& io, int port)
+ 	virtual void start_session()
  	{
- 		this->t_serv = new network::tcp_server(io, port);
 
- 		this->t_serv->connection_callback_rg(std::bind(&tcp_session::connection_callback, this, std::placeholders::_1));
-
- 		this->t_serv->start();
  	}
 
- 	tcp_session() : curr_buffer(0) { };
-
- 	virtual ~tcp_session() override
- 	{
- 		delete t_serv;
- 	}
+ 	tcp_session() : curr_buffer_(0) { };
 
  };
+}
 
  sessions::session* create_tcp()
  {
- 	return new tcp_session;
+ 	return new sessions::tcp_session;
  }
 
  void destroy_tcp(sessions::session* ref)
@@ -76,5 +67,9 @@
  	delete ref;
  }
 
- external::API<sessions::session> api_table = {create_tcp, destroy_tcp};
+#ifndef API_
+#define API_
 
+external::API<sessions::session> api_table = {create_tcp, destroy_tcp};
+
+#endif /* API_*/

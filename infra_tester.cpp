@@ -5,46 +5,51 @@
  *      Author: Henry J Kupty
  */
 
-#include "headers/network/server.hpp"
-#include "headers/network/connection.hpp"
+#include "external/async_linked_list_buffer.cpp"
+#include "external/tcp_session.cpp"
+
 #include <stdio.h>
-
-bool in_msg(const char* msg)
-{
-	std::cout << "in: " << msg << std::endl;
-	return true;
-}
-
-const char* out_msg()
-{
-	return "Teste\n\0"  ;
-}
-
-void msg_mnp(std::shared_ptr<network::tcp_connection> _conn)
-{
-	_conn->in_msg_callback_rg(in_msg);
-	_conn->out_msg_callback_rg(out_msg);
-}
 
  int main(int argc, char const *argv[])
  {
 	try
 	{
-		if (argc != 2)
+		if (argc != 3)
 		{
-			std::cerr << "Usage: async_tcp_echo_server <port>\n";
+			std::cerr << "Usage: infra_tester <port1> <port2>\n\0";
 			return 1;
 		}
 
 		boost::asio::io_service io_service;
 
-		using namespace std; // For atoi.
+		using namespace std;
 
-		network::tcp_server s(io_service, atoi(argv[1]));
+		std::cout << "Preparing" << std::endl;
 
-		s.connection_callback_rg(std::bind(msg_mnp, std::placeholders::_1));
+		sessions::session* s1 = new sessions::tcp_session;
+		sessions::session* s2 = new sessions::tcp_session;
 
-		s.start();
+		buffers::message_buffer* asbuff_1 = new buffers::async_linked_list_buffer;
+		buffers::message_buffer* asbuff_2 = new buffers::async_linked_list_buffer;
+		buffers::message_buffer* asbuff_3 = new buffers::async_linked_list_buffer;
+		buffers::message_buffer* asbuff_4 = new buffers::async_linked_list_buffer;
+
+		std::cout << "Registering" << std::endl;
+
+		s1->set_name(std::string("S_1"));
+		s2->set_name(std::string("S_2"));
+
+		s1->register_mbuffer(asbuff_1);
+		s1->register_mbuffer(asbuff_2);
+		s2->register_mbuffer(asbuff_3);
+		s2->register_mbuffer(asbuff_4);
+
+		std::cout << "Starting" << std::endl;
+
+		s1->start_session(io_service, atoi(argv[1]));
+		s2->start_session(io_service, atoi(argv[2]));
+
+		std::cout << "Done!" << std::endl;
 
 		io_service.run();
 
