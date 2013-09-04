@@ -8,7 +8,7 @@
  #include "../headers/session.hpp"
  #include "../headers/external.hpp"
 
- #include <boost/container/list.hpp>
+ #include <vector>
  #include <functional>
 
 namespace sessions
@@ -32,18 +32,30 @@ namespace sessions
  	*/
 
  protected:
- 	boost::container::list<buffers::message_buffer*> buffers;
+ 	std::vector<buffers::message_buffer*> buffers;
 
  public:
- 	virtual void register_mbuffer(buffers::message_buffer* buffer) override
+ 	virtual buffer_data register_mbuffer(buffers::message_buffer* buffer) override
  	{
  		this->buffers.push_back(buffer);
  		this->mbuffer_qtd_++;
+ 		this->mbuffer_inc_++;
+ 		buffer_data d;
+ 		d.buffer_id = this->mbuffer_inc_;
+
+ 		return d;
  	}
 
- 	virtual void deregister_mbuffer(buffers::message_buffer* buffer) override
+ 	virtual void deregister_mbuffer(buffer_data d) override
  	{
-		this->buffers.remove(buffer);
+ 		auto it = this->buffers.begin();
+
+ 		while(it.id_ != d.buffer_id && it != this->buffers.end() ) ++it;
+
+ 		if(it == this->buffers.end())
+ 			return;
+
+		this->buffers.erase(it);
 		this->mbuffer_qtd_--;
  	}
 

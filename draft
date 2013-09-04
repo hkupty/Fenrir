@@ -1,0 +1,94 @@
+
+
+	
+							|---- Memory Struct ----|
+    |----- Thread Ctx ------|						|----- Thread Ctx ------|----- Thread Ctx ------|
+	
+	+-----------------------+-----------------------+-----------------------+-----------------------+
+	|	Network layer		|	Session layer 		| 	Dispatcher Layer  	| Rule Manager Layer 	|
+	+-----------------------+-----------------------+-----------------------+-----------------------+
+	|						|						|						|						|
+	|	High	Priority	|						| + < --------------+   |						|
+	|						|	+--- > [          **] + > ---------+    |   |						|
+	~~~~~~~~~~~~~~~~+		|	|					|			   +----^-+ |						|
+	:				|		|	|					| + > ---------+    | | |			Process 	|
+	:				> [   ] > --+--- > [		   *] + < --------------+ | | 		 +- {     } +	|
+	:				|		|						|					| | | 		 | 			|	|
+	~~~~~~~~~~~~~~~~+		+-----------------------+					| | | 		 | 			|	|
+	|						|						| + < --------------+ | | 		 | 			|	|
+	|	Std		Priority	|	+--- > [		  **] + > ---------+    | | |        | 			|	|
+	|						|	|					|			   +----^-+-> [   ] -+	 		|	|
+	~~~~~~~~~~~~~~~~+		|	+--- > [		****] + > ---------+    | | |					|	|
+	:				|		|	|					| + < --------------+ | |		Plug-in -> [ ]	|
+	:				> [   ] > --+--- > [  	********] + > --------------^-+ |					|	|
+	:				|		|						| + < --------------+ | |		Plug-in -> [ ]	|
+	~~~~~~~~~~~~~~~~+		+-----------------------+                   | | |					|	|
+	|						|						|                   | | |		Plug-in -> [ ]	|
+	|	Low		Priority	|	+--- > [  **********] + < --------------+ | |					|	|	
+	|						|	|					| + > ---------+    | | |		Plug-in -> [ ]	|
+	~~~~~~~~~~~~~~~~+		|	+--- > [  	********] + > ---------+----^-+ | 					|	|
+	:				|		|	|					| + < --------------+ | |		Plug-in -> [ ]	|
+	:				> [   ] > --+--- > [************] + < --------------+ | |					|	|
+	:				|		|	|					| + > ---------+----^-+ |					|	|
+	~~~~~~~~~~~~~~~~+		|	+--- > [  	  ******] + > ---------+    |   |					|	|
+	|						|						| + < --------------+---< [   ] ------------+	|
+	|						|						|                       |						|
+	+-----------------------+-----------------------+-----------------------+-----------------------+
+	|				^					^															|
+ 	|				|					|			+-----------------------------------------------+
+	|   			|				    |			|							D-BUS-LOG			|
+	|				+-------------------+---------- > ----------------------+---------------------> :
+	|												|						|	D-BUS-WEB-MGMT		|
+	|												|						+---------------------> :
+	|												|												|
+	+-----------------------------------------------+-----------------------------------------------+
+	|				Management layer				| 					D-BUS layer 				|
+	+-----------------------------------------------+-----------------------------------------------+
+
+"
+	As data enters the network layer, it sent to the session layer, which parses the message and superficially validates it, returning True for ok messages or False (and creating a new event for responding bad message) in case of error.
+
+	As data enters the session layer, Dispatcher is notified (receiving a pointer to the appropriate session) that there are messages available.
+
+	Messages are temporarially stored in message buffers. The order of the messages are processed according to the pointers passed to the dispatcher.
+
+	As the dispatcher catches the message, data is passed (as a pointer) to the Rule Manager Layer. The pointer is stored in a temporary buffer, allowing the rule manager to process each request at once, serially.
+
+	The response stimulates the dispatcher (another thread, the responding one), which in turn will deliver the message to the correspondant session.
+
+	This will result in the Network Layer being stimulated (by receiving a pointer to the session) to deliver the message to its socket.
+
+	Message pointers are not passed between Network and Dispatcher layers since the Session Layer modifies the message.
+	Incoming messages are transformed from char* to std::vector<std::tuple<char*, char*>> + some metadata, splitting key and value and storing them in the tuple list.
+	Outgoing messages will suffer inverse transformation.
+
+	High priority sessions will have exclusive socket epoll thread, separate thread in dispatching and priority with the rule manger.
+	Std priority sessions will have shared socket epoll thread (8~16 sockets per thread), shared thread for dispatching and default priority with the rule manager.
+	Log priority sessions will have their sockets all in the same thread, same thread for dispatching that standart and default priority with the rule manager. The difference in this priority level is the socket thread, which will have low priority in scheduling.
+
+	High priority sessions are highly recommended to internal services (such as order entry, matching engine, etc..), while Std priority sessions are recommended for brokers and participants. Since participants have lower throughput compared to systems, this setting is ideal.
+	Low priority threads were designed with no real use case. Feel free to find some use for it.
+	
+	Management Layer is responsible for:
+		1) Application Start-up;
+		2) Network Startup;
+		3) Configuration refresh;
+		4) Logging;
+		5) Business Logging;
+		6) Session Management.
+
+	Features 5 & 6 are achieved through D-BUS for internal messaging inside the containing server.
+	This allows on-the-fly console, file, printer or any other logging capabilities.
+	Also, session management can be done via console or web, using the same IPC solution with another channel.
+"
+
+
+
+
+
+
+  :  IPC/Network Ports
+ > < Message/Data Delivery
+ [ ] Data Containers
+ -|+ Data Flow
+  ^  Data Flow Jump Over

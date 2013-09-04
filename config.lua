@@ -8,6 +8,7 @@ global_cfg =
 	{
 		_name 			= "Player1",
 		_type 			= "tcp_session",
+		port 			= "50600",
 		group			= "brokers",
 		buffer_1		=
 		{
@@ -26,6 +27,7 @@ global_cfg =
 		_name			= "System1",
 		_type			= "tcp_session",
 		group			= "systems",
+		port 			= "50700",
 		buffer_1		=
 		{
 			_name 			= "bf1",

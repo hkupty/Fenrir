@@ -7,19 +7,28 @@
 
  #ifndef NETWORK_CONTAINER_HPP_
  #define NETWORK_CONTAINER_HPP_
- 
+
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <boost/container/list.hpp>
+
  class network_container
  {
+
+ 	boost::container::list<int> sockets;
  	
  public:
  	network_container () {}
  	~network_container() {}
 
 	/*
-						  port, protocol, bind
- 		void request_port(int , int     , std::function<>);
-
+						  port
  	*/
+
+	bool request_tcp_port(int);
 
  };
  

@@ -39,9 +39,6 @@ void exec::exec_environment::start()
 
 exec::exec_environment::~exec_environment() 
 {
-	if (this->current_runtime_ != nullptr)
-		delete this->current_runtime_;
-	
-	if (this->current_network_ != nullptr)
-		delete this->current_network_;
+	delete this->current_network_;
+	delete this->current_runtime_;
 }

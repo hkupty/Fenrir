@@ -26,7 +26,6 @@ namespace exec
 
 		runtime_container* current_runtime_;
 
-
 	public:
 				exec_environment () {};
 		virtual ~exec_environment();

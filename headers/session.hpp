@@ -10,6 +10,7 @@
 
 #include "message_buffer.hpp"
 #include "external.hpp"
+#include "observable.hpp"
 #include <string>
 #include <cstdlib>
 #include <iostream>
@@ -20,12 +21,18 @@ namespace sessions
 	// const short READ_ACCESS 	= 0x01 << 0;
 	// const short WRITE_ACCESS 	= 0x01 << 1;
 
-	class session : public external::external
+	struct buffer_data
+	{
+		short buffer_id;
+	};
+
+	class session : public external::external //public observable<session>
 	{
 	protected:
 		std::string		name_;
 		std::string		group_;
 		short			mbuffer_qtd_;
+		short 			mbuffer_inc_;
 		int				port_;
 
 	public:
@@ -47,8 +54,8 @@ namespace sessions
 				session () {};
 		virtual ~session() {};
 
-		virtual void register_mbuffer(buffers::message_buffer*) = 0;
-		virtual void deregister_mbuffer(buffers::message_buffer*) = 0;
+		virtual buffer_data register_mbuffer(buffers::message_buffer*) = 0;
+		virtual void deregister_mbuffer(buffer_data) = 0;
 
 	};
 
