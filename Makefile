@@ -46,4 +46,4 @@ $(SHARED):
 test: $(TEST)
 
 $(TEST):
-	$(CC) $(CFLAGS) -lboost_system -lboost_thread -ldl $@.cpp -o $(BUILD)/$@
+	$(CC) $(CFLAGS) -ldl $@.cpp -o $(BUILD)/$@

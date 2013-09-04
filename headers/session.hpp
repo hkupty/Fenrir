@@ -24,29 +24,43 @@ namespace sessions
 	struct buffer_data
 	{
 		short buffer_id;
+		const char* buffer_name;
 	};
 
-	class session : public external::external //public observable<session>
+	struct buffer_container
+	{
+		buffer_data data;
+		buffers::message_buffer* buffer;
+	};
+
+	struct session_data
+	{
+		buffer_data buffer;
+		const char* name_;
+		
+	};
+
+	class session : public external::external, public multi_channel_observable<session_data>
 	{
 	protected:
-		std::string		name_;
-		std::string		group_;
+		const char*		name_;
+		const char*		group_;
 		short			mbuffer_qtd_;
 		short 			mbuffer_inc_;
 		int				port_;
 
 	public:
 
-		virtual void configure(boost::unordered_map<std::string,std::string> kv_) override
+		virtual void configure(boost::unordered_map<std::string,std::string> _kv) override
 		{
-			this->group_ = kv_["group"];
-			this->port_ = atoi(kv_["port"].c_str());
+			this->group_ = _kv["group"].c_str();
+			this->port_ = atoi(_kv["port"].c_str());
 
 		}
 
 		virtual void set_name(std::string name)
 		{
-			this->name_ = name;
+			this->name_ = name.c_str();
 		}
 
 		virtual void start_session() = 0;
@@ -54,8 +68,11 @@ namespace sessions
 				session () {};
 		virtual ~session() {};
 
-		virtual buffer_data register_mbuffer(buffers::message_buffer*) = 0;
+		virtual buffer_data register_mbuffer(buffers::message_buffer*, const char*) = 0;
 		virtual void deregister_mbuffer(buffer_data) = 0;
+
+		virtual void put_message_in(const char*, buffer_data) = 0;
+		virtual void put_message_out(const char*, buffer_data) = 0;
 
 	};
 

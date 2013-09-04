@@ -10,7 +10,6 @@
 
 #include "message.hpp"
 #include "external.hpp"
-#include "session.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -22,7 +21,7 @@ namespace buffers
 
 	protected:
 		int max_length_;
-		short id_;
+		const char* name_;
 		
 	public:
 
@@ -30,7 +29,8 @@ namespace buffers
 		{
 			this->max_length_ = atoi(kv_["max_length"].c_str()) ?: 1024;
 		}
-				message_buffer (short id) : id_(id) {};
+
+				message_buffer () {};
 		virtual ~message_buffer() {};
 
 		virtual bool in_msg_push(const char*) = 0;
@@ -39,7 +39,6 @@ namespace buffers
 		virtual const char* in_msg_get() = 0;
 		virtual const char* out_msg_get() = 0;
 
-		friend class session;
 	};
 }
 #endif /* MESSAGE_BUFFER_HPP_ */

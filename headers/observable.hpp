@@ -13,44 +13,80 @@
  #include <boost/unordered_map.hpp>
 
  enum CHANNEL { IN, OUT };
- 
+
  template<class T>
- class single_channel_observable
+ class observable
  {
 
+ protected:
+ 	 observable() {};
+ 	~observable() {};
+ 	
+ 	void notify_(const T &message, const std::vector<observer<T>> &observers)
+	{
+		for(auto it = observers.begin(); it != observers.end(); ++it)
+		{
+			auto pointee = *it;
+			pointee.update(message);
+		}
+ 	}
+
+ 	void attach_(const std::vector<observer<T>> &observers, observer<T> &new_obs)
+ 	{
+ 		observers.push_back(new_obs);
+ 	}
+
+ };
+ 
+ 
+ template<class T>
+ class single_channel_observable : protected observable<T>
+ {
 private:
  	std::vector<observer<T>> observers_;
 
- public:
- 	single_channel_observable(CHANNEL);
- 	~single_channel_observable();
+ protected:
+ 	 single_channel_observable() {};
+ 	~single_channel_observable() {};
+ 	virtual void set_channel();
 
- 	void notify()
+ 	void notify(T &message)
  	{
- 		for(auto i = observers_.begin(); i != observers_.end(); ++i)
- 			i.update(static_cast<T>(this));
+ 		this->notify_(message, observers_);
  	}
+
+ 	void attach(const observer<T> &observer)
+ 	{
+ 		this->attach_(observers_, observer);
+ 	}
+
  };
 
 template<class T>
- class multi_channel_observable
+ class multi_channel_observable : protected observable<T>
  {
 
  private:
- 	boost::unordered_map<CHANNEL,std::vector<observer<T>>> observers_;
+ 	boost::unordered_map<CHANNEL,std::vector<observer<T>>* > observers_;
 
- public:
- 	multi_channel_observable();
- 	~multi_channel_observable();
+ protected:
+  	 multi_channel_observable() 
+  	 {
+  	 	observers_[IN]   = new std::vector<observer<T>>;
+  	 	observers_[OUT]  = new std::vector<observer<T>>;
+  	 };
+ 	~multi_channel_observable() {};
 
-	void notify(CHANNEL c)
+	void notify(CHANNEL c, T &message)
 	{
 		auto v = observers_[c];
-		for (auto i = v.begin(); i != v.end(); ++i)
-			i.update(static_cast<T>(this));
+		this->notify_(message, v);
 	}
 
- 	
+	void attach(CHANNEL c, const observer<T> &observer)
+ 	{
+ 		this->attach_(observers_[c], observer);
+ 	}
  };
  
  #endif /* OBSERVABLE_HPP_*/

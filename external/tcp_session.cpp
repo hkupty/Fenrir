@@ -7,6 +7,7 @@
 
  #include "../headers/session.hpp"
  #include "../headers/external.hpp"
+ #include "../headers/observable.hpp"
 
  #include <vector>
  #include <functional>
@@ -15,47 +16,52 @@ namespace sessions
 {
  class tcp_session : public session
  {
- 	int curr_buffer_;
-
- 	/*
- 	void connection_callback (std::shared_ptr<network::tcp_connection> conn)
+ 	
+ 	buffers_::iterator find_buffer(buffer_data d)
  	{
- 		auto it = buffers.begin();
+ 		
 
- 		//TODO: Implement intelligent logic for buffer selection
- 		buffers::message_buffer* nx = *( std::next(it, curr_buffer_) );
 
- 		auto in_msg_callback = std::bind(&buffers::message_buffer::in_msg_push, nx, std::placeholders::_1);
+ 		if(it == buffers_.end())
+ 			return nullptr;
 
- 		conn->in_msg_callback_rg(in_msg_callback);
+ 		return pointee;
  	}
- 	*/
 
  protected:
- 	std::vector<buffers::message_buffer*> buffers;
+ 	std::vector<buffer_container*> buffers_;
 
  public:
- 	virtual buffer_data register_mbuffer(buffers::message_buffer* buffer) override
+ 	virtual buffer_data register_mbuffer(buffers::message_buffer* buffer, const char* buff_name) override
  	{
- 		this->buffers.push_back(buffer);
- 		this->mbuffer_qtd_++;
+		this->mbuffer_qtd_++;
  		this->mbuffer_inc_++;
+
  		buffer_data d;
  		d.buffer_id = this->mbuffer_inc_;
+ 		d.buffer_name = buff_name;
+
+ 		buffer_container c;
+ 		c.buffer = buffer;
+ 		c.data = d;
+
+ 		this->buffers_.push_back(&c);
 
  		return d;
  	}
 
  	virtual void deregister_mbuffer(buffer_data d) override
  	{
- 		auto it = this->buffers.begin();
+ 		auto it = buffers_.begin();
+ 		auto pointee = *it;
 
- 		while(it.id_ != d.buffer_id && it != this->buffers.end() ) ++it;
+ 		while(pointee->data.buffer_id != d.buffer_id && it != buffers_.end() ) 
+		{
+			++it;
+			pointee = *it;
+		}
 
- 		if(it == this->buffers.end())
- 			return;
-
-		this->buffers.erase(it);
+		this->buffers_.erase(it);
 		this->mbuffer_qtd_--;
  	}
 
@@ -64,7 +70,45 @@ namespace sessions
 
  	}
 
- 	tcp_session() : curr_buffer_(0) { };
+ 	buffer_data buffer_for_connection (const char* msg)
+ 	{
+ 		buffer_data d;
+ 		d.buffer_name = msg;
+
+ 		auto it = buffers_.begin();
+ 		auto buff = *it;
+
+ 		while(buff->data.buffer_name != d.buffer_name && it != buffers_.end() ) 
+		{
+			++it;
+			buff = *it;
+		}
+
+		return buff;
+ 	}
+
+ 	tcp_session() { };
+
+ 	virtual void put_message_in(const char* msg, buffer_data data)
+ 	{
+ 		auto it = buffers_.begin();
+ 		auto buff = *it;
+
+ 		while(buff->data.buffer_id != d.buffer_id && it != buffers_.end() ) 
+		{
+			++it;
+			buff = *it;
+		}
+
+ 		buff->buffer->in_msg_push(msg);
+
+ 		session_data s;
+
+ 		s.name_ = this->name_;
+ 		s.buffer = buff->data;
+
+ 		this->notify(IN, s);
+ 	}
 
  };
 }

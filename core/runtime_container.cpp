@@ -58,7 +58,7 @@
 		for (auto buffer_it = session_it->_underlying.begin(); buffer_it != session_it->_underlying.end(); buffer_it++ )
 		{
 			buffers::message_buffer* mb = bufferdi_.create_t(buffer_it->_type);
-			s->register_mbuffer(mb);
+			s->register_mbuffer(mb, buffer_it->_name.c_str());
 			mb->configure(buffer_it->_kv);
 		}
 	}

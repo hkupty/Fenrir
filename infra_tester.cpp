@@ -7,6 +7,8 @@
 
 #include "external/async_linked_list_buffer.cpp"
 #include "external/tcp_session.cpp"
+#include "headers/observable.hpp"
+#include "headers/session.hpp"
 
 #include <stdio.h>
 
@@ -20,7 +22,6 @@
 			return 1;
 		}
 
-		boost::asio::io_service io_service;
 
 		using namespace std;
 
@@ -39,19 +40,14 @@
 		s1->set_name(std::string("S_1"));
 		s2->set_name(std::string("S_2"));
 
-		s1->register_mbuffer(asbuff_1);
-		s1->register_mbuffer(asbuff_2);
-		s2->register_mbuffer(asbuff_3);
-		s2->register_mbuffer(asbuff_4);
+		s1->register_mbuffer(asbuff_1,"b1");
+		s1->register_mbuffer(asbuff_2,"b2");
+		s2->register_mbuffer(asbuff_3,"b3");
+		s2->register_mbuffer(asbuff_4,"b4");
 
 		std::cout << "Starting" << std::endl;
 
-		s1->start_session(io_service, atoi(argv[1]));
-		s2->start_session(io_service, atoi(argv[2]));
-
 		std::cout << "Done!" << std::endl;
-
-		io_service.run();
 
 	}
 	catch (std::exception& e)
