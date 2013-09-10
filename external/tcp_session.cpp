@@ -16,17 +16,6 @@ namespace sessions
 {
  class tcp_session : public session
  {
- 	
- 	buffers_::iterator find_buffer(buffer_data d)
- 	{
- 		
-
-
- 		if(it == buffers_.end())
- 			return nullptr;
-
- 		return pointee;
- 	}
 
  protected:
  	std::vector<buffer_container*> buffers_;
@@ -84,12 +73,12 @@ namespace sessions
 			buff = *it;
 		}
 
-		return buff;
+		return buff->data;
  	}
 
  	tcp_session() { };
 
- 	virtual void put_message_in(const char* msg, buffer_data data)
+ 	virtual void put_message_in(const char* msg, buffer_data d) override
  	{
  		auto it = buffers_.begin();
  		auto buff = *it;
@@ -99,6 +88,9 @@ namespace sessions
 			++it;
 			buff = *it;
 		}
+
+		if (it == buffers_.end())
+			return;
 
  		buff->buffer->in_msg_push(msg);
 
@@ -110,6 +102,65 @@ namespace sessions
  		this->notify(IN, s);
  	}
 
+	virtual void put_message_out(const char* msg, buffer_data d) override
+ 	{
+ 		auto it = buffers_.begin();
+ 		auto buff = *it;
+
+ 		while(buff->data.buffer_id != d.buffer_id && it != buffers_.end() ) 
+		{
+			++it;
+			buff = *it;
+		}
+
+		if (it == buffers_.end())
+			return;
+
+ 		buff->buffer->out_msg_push(msg);
+
+ 		session_data s;
+
+ 		s.name_ = this->name_;
+ 		s.buffer = buff->data;
+
+ 		this->notify(OUT, s);
+ 	}
+
+
+ 	const char* get_message_in(buffer_data bdata)
+ 	{
+ 		auto it = buffers_.begin();
+ 		auto buff = *it;
+
+ 		while(buff->data.buffer_id != bdata.buffer_id && it != buffers_.end() ) 
+		{
+			++it;
+			buff = *it;
+		}
+
+		if (it == buffers_.end())
+			return "";
+
+		return buff->buffer->in_msg_get();
+
+ 	}
+
+ 	const char* get_message_out(buffer_data bdata)
+ 	{
+ 		auto it = buffers_.begin();
+ 		auto buff = *it;
+
+ 		while(buff->data.buffer_id != bdata.buffer_id && it != buffers_.end() ) 
+		{
+			++it;
+			buff = *it;
+		}
+
+		if (it == buffers_.end())
+			return "";
+
+		return buff->buffer->out_msg_get();
+ 	}
  };
 }
 

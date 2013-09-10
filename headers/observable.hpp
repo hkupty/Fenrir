@@ -22,16 +22,17 @@
  	 observable() {};
  	~observable() {};
  	
- 	void notify_(const T &message, const std::vector<observer<T>> &observers)
+ 	void notify_(T message, std::vector<observer<T>> observers)
 	{
-		for(auto it = observers.begin(); it != observers.end(); ++it)
+		typename std::vector<observer<T>>::iterator it;
+
+		for(it = observers.begin(); it != observers.end(); ++it)
 		{
-			auto pointee = *it;
-			pointee.update(message);
+			it->update(message);
 		}
  	}
 
- 	void attach_(const std::vector<observer<T>> &observers, observer<T> &new_obs)
+ 	void attach_(std::vector<observer<T>> observers, observer<T> new_obs)
  	{
  		observers.push_back(new_obs);
  	}
@@ -45,7 +46,7 @@
 private:
  	std::vector<observer<T>> observers_;
 
- protected:
+ public:
  	 single_channel_observable() {};
  	~single_channel_observable() {};
  	virtual void set_channel();
@@ -55,7 +56,7 @@ private:
  		this->notify_(message, observers_);
  	}
 
- 	void attach(const observer<T> &observer)
+ 	void attach(observer<T> observer)
  	{
  		this->attach_(observers_, observer);
  	}
@@ -67,9 +68,9 @@ template<class T>
  {
 
  private:
- 	boost::unordered_map<CHANNEL,std::vector<observer<T>>* > observers_;
+ 	boost::unordered_map<CHANNEL,std::vector<observer<T>>*> observers_;
 
- protected:
+ public:
   	 multi_channel_observable() 
   	 {
   	 	observers_[IN]   = new std::vector<observer<T>>;
@@ -77,15 +78,16 @@ template<class T>
   	 };
  	~multi_channel_observable() {};
 
-	void notify(CHANNEL c, T &message)
+	void notify(CHANNEL c, T message)
 	{
-		auto v = observers_[c];
-		this->notify_(message, v);
+		auto obs_vect = *observers_[c];
+		this->notify_(message, obs_vect);
 	}
 
-	void attach(CHANNEL c, const observer<T> &observer)
+	void attach(CHANNEL c, observer<T> &observer)
  	{
- 		this->attach_(observers_[c], observer);
+ 		auto obs_vect = *observers_[c];
+ 		this->attach_(obs_vect, observer);
  	}
  };
  

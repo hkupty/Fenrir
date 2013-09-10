@@ -17,10 +17,6 @@
 
 namespace sessions
 {
-
-	// const short READ_ACCESS 	= 0x01 << 0;
-	// const short WRITE_ACCESS 	= 0x01 << 1;
-
 	struct buffer_data
 	{
 		short buffer_id;
@@ -73,6 +69,9 @@ namespace sessions
 
 		virtual void put_message_in(const char*, buffer_data) = 0;
 		virtual void put_message_out(const char*, buffer_data) = 0;
+
+		virtual const char* get_message_in(buffer_data) =0;
+		virtual const char* get_message_out(buffer_data) =0;
 
 	};
 

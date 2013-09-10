@@ -12,7 +12,7 @@ CP=cp *.lua
 STATIC= runtime_container.cpp lua_container.cpp config.cpp di_container.cpp network_container.cpp exec_environment.cpp run.cpp
 STATIC_FOLDER=core
 
-TEST=buffer_tester infra_tester
+TEST=buffer_tester infra_tester libev_test
 
 SHARED=default_rulemgr dynamic_rulemgr basic_session_manager tcp_session async_linked_list_buffer
 SHARED_FOLDER=external
@@ -46,4 +46,4 @@ $(SHARED):
 test: $(TEST)
 
 $(TEST):
-	$(CC) $(CFLAGS) -ldl $@.cpp -o $(BUILD)/$@
+	$(CC) $(CFLAGS) -ldl -lev $@.cpp -o $(BUILD)/$@
