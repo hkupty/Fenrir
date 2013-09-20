@@ -98,7 +98,6 @@ class async_linked_list_buffer : public message_buffer
 
  	virtual bool in_msg_push(const char* _msg) override
  	{
-
  		return in_llist_.push(_msg);
  	}
 
@@ -119,8 +118,7 @@ class async_linked_list_buffer : public message_buffer
 
  	virtual ~async_linked_list_buffer() override
  	{
- 		delete &in_llist_;
- 		delete &out_llist_;
+ 		
  	}
 
  };

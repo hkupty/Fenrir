@@ -1,6 +1,6 @@
 CC=clang++
 CC_VER=3.3
-_FLAGS=-std=c++11 -pipe
+_FLAGS=-std=c++11 -pipe 
 CFLAGS= $(_FLAGS) -O3 -Wall -fslp-vectorize -march=native -mtune=native
 INCLUDE=-I/usr/include 
 LFLAGS= $(_FLAGS) -L/usr/libs -ldl -lboost_system -lboost_thread -llua -pthread
@@ -12,7 +12,7 @@ CP=cp *.lua
 STATIC= runtime_container.cpp lua_container.cpp config.cpp di_container.cpp network_container.cpp exec_environment.cpp run.cpp
 STATIC_FOLDER=core
 
-TEST=buffer_tester infra_tester libev_test
+TEST=libev_test
 
 SHARED=default_rulemgr dynamic_rulemgr basic_session_manager tcp_session async_linked_list_buffer
 SHARED_FOLDER=external

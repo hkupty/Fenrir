@@ -31,6 +31,8 @@
 			auto pointee = *it;
 			pointee->update(message);
 		}
+
+		delete &message;
  	}
 
  };
@@ -44,7 +46,7 @@ private:
 
  public:
  	 single_channel_observable() {};
- 	~single_channel_observable() {};
+ 	~single_channel_observable() { delete observers_; };
  	virtual void set_channel();
 
  	void notify(const T &message)
@@ -72,7 +74,12 @@ template<class T>
   	 	observers_[IN]   = new std::vector<observer<T>*>;
   	 	observers_[OUT]  = new std::vector<observer<T>*>;
   	 };
- 	~multi_channel_observable() {};
+
+ 	~multi_channel_observable() 
+ 	{
+ 		delete observers_[IN];
+ 		delete observers_[OUT];
+ 	};
 
 	void notify(const CHANNEL &c, const T &message)
 	{
@@ -82,9 +89,7 @@ template<class T>
 
 	void attach(const CHANNEL &c, observer<T>* observer)
  	{
- 		auto obs_vect = *observers_[c];
-
- 		obs_vect.push_back(observer);
+ 		observers_[c]->push_back(observer);
  	}
  };
  

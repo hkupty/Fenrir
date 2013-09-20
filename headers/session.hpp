@@ -32,6 +32,11 @@ namespace sessions
 		bool free_buff;
 
 		buffer_container(buffer_data* _data, buffers::message_buffer* _buffer) : data(_data), buffer(_buffer), free_buff(true) {};
+
+		~buffer_container() 
+		{
+			delete data;
+		}
 	};
 
 	struct session_data

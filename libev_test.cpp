@@ -52,13 +52,13 @@ struct Buffer {
 //
 class EchoInstance {
 private:
-    ev::io           io;
-    static int total_clients;
-    int              sfd;
-    sessions::buffer_data* bdata;    
+    ev::io                  io;
+    static int              total_clients;
+    int                     sfd;
+    sessions::buffer_data*  bdata;    
 
     // Buffers that are pending write
-    std::list<Buffer*>     write_queue;
+    std::list<Buffer*>      write_queue;
 
     // Generic callback
     void callback(ev::io &watcher, int revents) {
@@ -124,16 +124,6 @@ private:
         }
     }
 
-    // effictivly a close and a destroy
-    virtual ~EchoInstance() {
-        // Stop and free watcher if client socket is closing
-        io.stop();
-
-        close(sfd);
-
-        printf("%d client(s) connected.\n", --total_clients);
-    }
-
 public:
     EchoInstance(int s, sessions::buffer_data* _bdata) : sfd(s), bdata(_bdata) {
         fcntl(s, F_SETFL, fcntl(s, F_GETFL, 0) | O_NONBLOCK); 
@@ -145,6 +135,18 @@ public:
 
         io.start(s, ev::READ);
 }
+
+// effictivly a close and a destroy
+    virtual ~EchoInstance() {
+        // Stop and free watcher if client socket is closing
+        io.stop();
+
+        delete bdata;
+
+        close(sfd);
+
+        printf("%d client(s) connected.\n", --total_clients);
+    }
 };
   
 class EchoServer {
@@ -152,9 +154,11 @@ private:
         ev::io           io;
         ev::sig         sio;
         int               s;
+
+        std::vector<EchoInstance*> eiv;
   
 public:
-  
+ 
     void io_accept(ev::io &watcher, int revents) {
         if (EV_ERROR & revents) {
                 perror("got invalid event");
@@ -172,6 +176,8 @@ public:
         }
 
         EchoInstance *client = new EchoInstance(client_sd, s1->get_free_bdata());
+
+        eiv.push_back(client);
     }
   
     static void signal_cb(ev::sig &signal, int revents) {
@@ -207,6 +213,11 @@ public:
     virtual ~EchoServer() {
         shutdown(s, SHUT_RDWR);
         close(s);
+
+        for (std::vector<EchoInstance*>::iterator i = eiv.begin(); i != eiv.end(); ++i)
+        {
+            delete *i;
+        }
     }
 };
 
@@ -222,7 +233,7 @@ public:
     virtual void update(sessions::session_data s) const
     {
         std::cout << "Got Notification.. updating.." << std::endl;
-        auto msg = std::string(s1->get_message_in(s.buffer));
+        std::string msg = std::string(s1->get_message_in(s.buffer));
 
         std::cout << msg << std::endl;
     }
