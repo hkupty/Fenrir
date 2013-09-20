@@ -16,7 +16,7 @@
  	observer(){};
  	~observer(){};
 
-	virtual void update(T) = 0;
+	virtual void update(T) const  = 0;
  	
  };
  

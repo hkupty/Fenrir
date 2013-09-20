@@ -26,8 +26,6 @@ namespace sessions
 		++mbuffer_qtd_;
  		++mbuffer_inc_;
 
- 		std::cout<<"Register:"<< mbuffer_qtd_ << "," << mbuffer_inc_ << std::endl;
-
  		buffer_data* d = new buffer_data(mbuffer_inc_,buff_name);
 
  		buffer_container* c = new buffer_container(d, buffer);
@@ -75,40 +73,29 @@ namespace sessions
 
  	virtual void put_message_in(const char* msg, buffer_data* bdata) override
  	{
- 		std::cout<<"begin put" << std::endl;
- 		std::cout<<"buffer_data (id):" << bdata->buffer_id << std::endl;
-
  		auto it = buffers_.begin();
  		auto buff = *it;
 
  		while(buff->data->buffer_id != bdata->buffer_id && it != buffers_.end() ) 
 		{
-			std::cout<<"buff->data (id):" << buff->data->buffer_id << std::endl;
-
 			++it;
 			buff = *it;
 		}
-		std::cout<<"Finding buffer" << std::endl;
 
 		if (it == buffers_.end())
 			return;
 
-		std::cout<< "Found buffer" << std::endl;
 
- 		buff->buffer->in_msg_push(msg);
+ 		if (buff->buffer->in_msg_push(msg))
+		{
 
- 		std::cout<<"Pushed msg" << std::endl;
+	 		session_data s;
 
- 		session_data s;
+	 		s.name_ = this->name_;
+	 		s.buffer = buff->data;
 
- 		s.name_ = this->name_;
- 		s.buffer = buff->data;
-
- 		std::cout<<"starting notify" << std::endl;
-
- 		this->notify(IN, s);
-
- 		std::cout<<"Notified" << std::endl;
+	 		this->notify(IN, s);
+	 	}
  	}
 
 	virtual void put_message_out(const char* msg, buffer_data* bdata) override
@@ -177,8 +164,6 @@ namespace sessions
  		auto it = buffers_.begin();
  		auto buff = *it;
 
- 		std::cout << "Getting next free buffer" << std::endl;
-
  		while(!buff->free_buff && it != buffers_.end() ) 
 		{
 			++it;
@@ -187,11 +172,6 @@ namespace sessions
 
 		if (it == buffers_.end())
 			return nullptr;
-
-		std::cout << "GOT it.. it Ain't nullptr" << std::endl;
-
-		std::cout << buff->data->buffer_id << std::endl;
-
 
 		buff->free_buff = false;
 

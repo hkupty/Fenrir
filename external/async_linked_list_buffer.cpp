@@ -42,7 +42,6 @@ class llist
 
 		bool push (T value)
 		{
-			std::cout << "Pushing .." << std::endl;
 
 			if (this->llist_size == this->llist_max_size)
 				return false;
@@ -58,14 +57,10 @@ class llist
 				this->last_node_->next_ = c;
 			}
 
-			std::cout << "Updating pointers.." << std::endl;
-
 			this->last_node_ = c;
 			this->last_node_->next_ = nullptr;
 
 			this->llist_size++;
-
-			std::cout << "Done!" << std::endl;
 
 			return true;
 		}
@@ -103,7 +98,7 @@ class async_linked_list_buffer : public message_buffer
 
  	virtual bool in_msg_push(const char* _msg) override
  	{
- 		std::cout << "Starting push" << std::endl;
+
  		return in_llist_.push(_msg);
  	}
 

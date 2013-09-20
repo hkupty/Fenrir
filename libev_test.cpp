@@ -139,7 +139,6 @@ public:
         fcntl(s, F_SETFL, fcntl(s, F_GETFL, 0) | O_NONBLOCK); 
 
         printf("Got connection\n");
-        std::cout << _bdata->buffer_id << std::endl;
         total_clients++;
 
         io.set<EchoInstance, &EchoInstance::callback>(this);
@@ -220,7 +219,7 @@ public:
     in_getter() {};
     ~in_getter() {};
 
-    virtual void update(sessions::session_data s)
+    virtual void update(sessions::session_data s) const
     {
         std::cout << "Got Notification.. updating.." << std::endl;
         auto msg = std::string(s1->get_message_in(s.buffer));
@@ -229,9 +228,6 @@ public:
     }
 };
 
-
-
-  
 int main(int argc, char **argv) 
 {        
         std::cout << "Preparing" << std::endl;
@@ -249,7 +245,7 @@ int main(int argc, char **argv)
 
         s1->set_name(std::string("S_1"));
 
-        s1->attach(IN, n_in_g);
+        s1->attach(IN, dynamic_cast<observer<sessions::session_data>*>(&n_in_g));
 
         s1->register_mbuffer(asbuff_1,"b1");
         s1->register_mbuffer(asbuff_2,"b2");

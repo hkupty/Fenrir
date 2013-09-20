@@ -52,7 +52,7 @@ private:
  		this->notify_(message, observers_);
  	}
 
- 	void attach(const observer<T>* &observer)
+ 	void attach(observer<T>* &observer)
  	{
  		this->observers_.push_back(observer);
  	}
@@ -80,11 +80,11 @@ template<class T>
 		this->notify_(message, obs_vect);
 	}
 
-	void attach(const CHANNEL &c, observer<T> &observer)
+	void attach(const CHANNEL &c, observer<T>* observer)
  	{
  		auto obs_vect = *observers_[c];
 
- 		obs_vect.push_back(&observer);
+ 		obs_vect.push_back(observer);
  	}
  };
  
