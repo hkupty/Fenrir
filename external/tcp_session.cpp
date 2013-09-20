@@ -52,6 +52,8 @@ namespace sessions
 
 		this->buffers_.erase(it);
 		this->mbuffer_qtd_--;
+
+		delete (*it);
  	}
 
  	virtual void start_session()

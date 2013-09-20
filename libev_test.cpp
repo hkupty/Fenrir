@@ -211,6 +211,7 @@ public:
     }
       
     virtual ~EchoServer() {
+        std::cout << "Ending Server" << std::endl;
         shutdown(s, SHUT_RDWR);
         close(s);
 
@@ -281,8 +282,6 @@ int main(int argc, char **argv)
         delete asbuff_2;
         delete asbuff_3;
         delete asbuff_4;
-
-        delete s1;
 
         return 0;
 }

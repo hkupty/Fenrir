@@ -14,7 +14,7 @@
 
  public:
  	observer(){};
- 	~observer(){};
+ 	virtual  ~observer(){};
 
 	virtual void update(T) const  = 0;
  	

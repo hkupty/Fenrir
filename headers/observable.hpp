@@ -31,8 +31,6 @@
 			auto pointee = *it;
 			pointee->update(message);
 		}
-
-		delete &message;
  	}
 
  };
@@ -77,6 +75,11 @@ template<class T>
 
  	~multi_channel_observable() 
  	{
+ 		typename std::vector<observer<T>*>::iterator it;
+
+ 		for (it = observers_[IN]->begin(); it != observers_[IN]->end(); ++it)	delete (*it);
+ 		for (it = observers_[OUT]->begin(); it != observers_[OUT]->end(); ++it) delete (*it);
+
  		delete observers_[IN];
  		delete observers_[OUT];
  	};
