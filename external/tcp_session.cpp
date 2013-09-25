@@ -77,7 +77,7 @@ namespace sessions
 
  	tcp_session() { };
 
- 	virtual void put_message_in(const char* msg, buffer_data* bdata) override
+ 	virtual void put_message_in(msg_t msg, buffer_data* bdata) override
  	{
  		auto it = buffers_.begin();
 
@@ -98,7 +98,7 @@ namespace sessions
 	 	}
  	}
 
-	virtual void put_message_out(const char* msg, buffer_data* bdata) override
+	virtual void put_message_out(msg_t msg, buffer_data* bdata) override
  	{
  		auto it = buffers_.begin();
 
@@ -118,27 +118,28 @@ namespace sessions
  	}
 
 
- 	const char* get_message_in(buffer_data* bdata)
+ 	msg_t get_message_in(buffer_data* bdata)
  	{
  		auto it = buffers_.begin();
 
  		while((*it)->data->buffer_id != bdata->buffer_id && it != buffers_.end()) ++it;
 
-		if (it == buffers_.end())
-			return "";
+		// if (it == buffers_.end())
+		// 	return "";
 
 		return (*it)->buffer->in_msg_get();
 
  	}
 
- 	const char* get_message_out(buffer_data* bdata)
+ 	msg_t get_message_out(buffer_data* bdata)
  	{
  		auto it = buffers_.begin();
 
  		while((*it)->data->buffer_id != bdata->buffer_id && it != buffers_.end()) ++it;
 
-		if (it == buffers_.end())
-			return "";
+		// if (it == buffers_.end())
+		// 	return "";
+
 
 		return (*it)->buffer->out_msg_get();
  	}

@@ -14,6 +14,8 @@
 #include <cstdlib>
 #include <iostream>
 
+typedef message::msg msg_t;
+
 namespace buffers
 {
 	class message_buffer : public external::external
@@ -33,11 +35,11 @@ namespace buffers
 				message_buffer () {};
 		virtual ~message_buffer() {};
 
-		virtual bool in_msg_push(const char*) = 0;
-		virtual bool out_msg_push(const char*) = 0;
+		virtual bool in_msg_push(msg_t) = 0;
+		virtual bool out_msg_push(msg_t) = 0;
 
-		virtual const char* in_msg_get() = 0;
-		virtual const char* out_msg_get() = 0;
+		virtual msg_t in_msg_get() = 0;
+		virtual msg_t out_msg_get() = 0;
 
 	};
 }

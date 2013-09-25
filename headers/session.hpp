@@ -78,11 +78,11 @@ namespace sessions
 		virtual void register_mbuffer(buffers::message_buffer*, const char*) = 0;
 		virtual void deregister_mbuffer(buffer_data) = 0;
 
-		virtual void put_message_in(const char*, buffer_data*) = 0;
-		virtual void put_message_out(const char*, buffer_data*) = 0;
+		virtual void put_message_in(msg_t, buffer_data*) = 0;
+		virtual void put_message_out(msg_t, buffer_data*) = 0;
 
-		virtual const char* get_message_in(buffer_data*) = 0;
-		virtual const char* get_message_out(buffer_data*) = 0;
+		virtual msg_t get_message_in(buffer_data*) = 0;
+		virtual msg_t get_message_out(buffer_data*) = 0;
 
 		virtual buffer_data* get_free_bdata() = 0;
 

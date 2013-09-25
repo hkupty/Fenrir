@@ -68,7 +68,7 @@ class llist
 		T get ()
 		{
 			if (this->first_node_ == nullptr)
-				return NULL;
+				return msg_t();
 
 			container<T>* item = this->first_node_;
 			
@@ -88,30 +88,30 @@ class llist
 class async_linked_list_buffer : public message_buffer
  {
  protected:
- 	llist<const char*> in_llist_;
- 	llist<const char*> out_llist_;
+ 	llist<msg_t> in_llist_;
+ 	llist<msg_t> out_llist_;
 
  	int in_qtd_ = 0;
  	int out_qtd_ = 0;
 
  public:
 
- 	virtual bool in_msg_push(const char* _msg) override
+ 	virtual bool in_msg_push(msg_t _msg) override
  	{
  		return in_llist_.push(_msg);
  	}
 
- 	virtual bool out_msg_push(const char* _msg) override
+ 	virtual bool out_msg_push(msg_t _msg) override
  	{
  		return out_llist_.push(_msg);
  	}
 
- 	virtual const char* in_msg_get()
+ 	virtual msg_t in_msg_get()
  	{
  		return in_llist_.get();
  	}
 
- 	virtual const char* out_msg_get()
+ 	virtual msg_t out_msg_get()
  	{
  		return out_llist_.get();
  	}

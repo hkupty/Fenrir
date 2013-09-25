@@ -9,23 +9,31 @@
 #ifndef MESSAGE_
 #define MESSAGE_
 
-#include <cstddef>
+#include <unistd.h>
+#include <algorithm>
 
 namespace message
 {
 	class msg
 	{
 	protected:
-		const char* _msg_val;
-		std::size_t _msg_size;
-		short	 	_msg_len;
-		short		_msg_chksum;
-	
+		char*		val_;
+		ssize_t     len_;
+			
 	public:
-		virtual void set_field();
+		msg() : len_(-1) {}
 
-		msg(char* val_) : _msg_val(static_cast<const char*>(val_)) {};
+		msg(const char *bytes, ssize_t nbytes)
+		{
+			len_ = nbytes;
+	        val_ = new char[nbytes];
+	        std::copy(bytes, bytes + nbytes, val_);
+		}
 
+		~msg()
+		{
+			delete [] val_;
+		}
 	};
 }
 
