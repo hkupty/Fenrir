@@ -1,5 +1,4 @@
 
-
 	
 							|---- Memory Struct ----|
     |----- Thread Ctx ------|						|----- Thread Ctx ------|----- Thread Ctx ------|
@@ -46,28 +45,23 @@
 	+-----------------------------------------------+-----------------------------------------------+
 
 "
-	As data enters the network layer, it sent to the session layer, which parses the message and superficially validates it, returning True for ok messages or False (and creating a new event for responding bad message) in case of error.
+	As data enters the network layer, it is sent to the session layer, which parses the message and superficially validates it, returning True for ok messages or False (and creating a new event for responding bad message) in case of error.
 
 	As data enters the session layer, Dispatcher is notified (receiving a pointer to the appropriate session) that there are messages available.
 
 	Messages are temporarially stored in message buffers. The order of the messages are processed according to the pointers passed to the dispatcher.
 
-	As the dispatcher catches the message, data is passed (as a pointer) to the Rule Manager Layer. The pointer is stored in a temporary buffer, allowing the rule manager to process each request at once, serially.
+	As the dispatcher catches the message, data is passed (as a pointer) to the Rule Manager Layer. The pointer is stored in a temporary buffer, allowing the rule manager to process each request at once. Multiple threads may hold a Rule Manager instance, but parallelism will only exist if by partitioning.
 
-	The response stimulates the dispatcher (another thread, the responding one), which in turn will deliver the message to the correspondant session.
+	The response stimulates the dispatcher (another thread, the responding one), which in turn will deliver the message to the right session.
 
 	This will result in the Network Layer being stimulated (by receiving a pointer to the session) to deliver the message to its socket.
 
 	Message pointers are not passed between Network and Dispatcher layers since the Session Layer modifies the message.
-	Incoming messages are transformed from char* to std::vector<std::tuple<char*, char*>> + some metadata, splitting key and value and storing them in the tuple list.
+	Incoming messages are transformed from char* to std::vector<std::tuple<char*, char*>> + some metadata, splitting key and value and storing them in the tuple vector.
 	Outgoing messages will suffer inverse transformation.
 
-	High priority sessions will have exclusive socket epoll thread, separate thread in dispatching and priority with the rule manger.
-	Std priority sessions will have shared socket epoll thread (8~16 sockets per thread), shared thread for dispatching and default priority with the rule manager.
-	Log priority sessions will have their sockets all in the same thread, same thread for dispatching that standart and default priority with the rule manager. The difference in this priority level is the socket thread, which will have low priority in scheduling.
-
-	High priority sessions are highly recommended to internal services (such as order entry, matching engine, etc..), while Std priority sessions are recommended for brokers and participants. Since participants have lower throughput compared to systems, this setting is ideal.
-	Low priority threads were designed with no real use case. Feel free to find some use for it.
+	As for now, there shall not be different priorities. The above drawing serves as a reference point for future implementations.
 	
 	Management Layer is responsible for:
 		1) Application Start-up;
@@ -80,11 +74,16 @@
 	Features 5 & 6 are achieved through D-BUS for internal messaging inside the containing server.
 	This allows on-the-fly console, file, printer or any other logging capabilities.
 	Also, session management can be done via console or web, using the same IPC solution with another channel.
+	
+	D-BUS is a required dependency (for features 5 & 6);
+	ZMQ is a required dependency (for networking);
+	
+	TBD:
+	After basic functionality is achieved, tcmalloc may be tested/benchmarked.
+	FIX messages shall be de default implementation, but Fenrir might as well be compiled against JSON (with some flexibility).
+	Also, there shall be a routing plugin accepting a lua script as input for message distribution.
+	Lastly, other interfaces might be implemented along with ZMQ sockets (POSIX IPC of any sort) as well.
 "
-
-
-
-
 
 
   :  IPC/Network Ports
