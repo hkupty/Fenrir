@@ -79,13 +79,19 @@ namespace sessions
 
  	virtual void put_message_in(msg_t msg, buffer_data* bdata) override
  	{
+ 		if (bdata->buffer_id == -1)
+ 		{
+ 			
+ 			return;
+ 		}
+
  		auto it = buffers_.begin();
 
  		while((*it)->data->buffer_id != bdata->buffer_id && it != buffers_.end() ) ++it;
 
+
 		if (it == buffers_.end())
 			return;
-
 
  		if ((*it)->buffer->in_msg_push(msg))
 		{
@@ -152,7 +158,10 @@ namespace sessions
  		while(!(*it)->free_buff && it != buffers_.end() ) ++it;
 
 		if (it == buffers_.end())
-			return nullptr;
+		{
+			buffer_data bdata(-1,"");
+			return &bdata;
+		}
 
 		(*it)->free_buff = false;
 

@@ -31,8 +31,6 @@
 			auto pointee = *it;
 			pointee->update(message);
 		}
-
-		std::cout << "UPDATE DONE" << std::endl;
  	}
 
  };
