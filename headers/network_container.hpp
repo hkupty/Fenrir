@@ -24,10 +24,6 @@
  	network_container () {}
  	~network_container() {}
 
-	/*
-						  port
- 	*/
-
 	bool request_tcp_port(int);
 
  };

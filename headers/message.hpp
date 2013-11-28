@@ -10,7 +10,7 @@
 #define MESSAGE_
 
 #include <unistd.h>
-#include <algorithm>
+#include <string>
 
 namespace message
 {
@@ -18,21 +18,20 @@ namespace message
 	{
 	protected:
 		char*		val_;
-		ssize_t     len_;
 			
 	public:
-		msg() : len_(-1) {}
+		msg() {}
 
-		msg(const char *bytes, ssize_t nbytes)
+		msg(void * bytes, size_t nbytes)
 		{
-			len_ = nbytes;
-	        val_ = new char[nbytes];
-	        std::copy(bytes, bytes + nbytes, val_);
+	        val_ = static_cast<char *> (malloc(nbytes));
+	        memcpy(val_, bytes, nbytes);
 		}
 
-		~msg()
+
+		std::string to_string()
 		{
-			delete [] val_;
+			return std::string(val_);
 		}
 	};
 }

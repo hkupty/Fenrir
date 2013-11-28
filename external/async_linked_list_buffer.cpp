@@ -32,7 +32,7 @@ class llist
 
 	public:
 
-		llist(int max) : first_node_(nullptr), last_node_(nullptr), llist_size(0), llist_max_size(max) {}
+		llist(int max) : llist_size(0), llist_max_size(max) {first_node_ = nullptr; last_node_ = nullptr;}
 		llist() : first_node_(nullptr), last_node_(nullptr), llist_size(0), llist_max_size(1024) {}
 		~llist()
 		{
